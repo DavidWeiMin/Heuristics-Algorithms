@@ -10,6 +10,14 @@ def rastrigin(x):
         value += x[i] ** 2 - A * math.cos(2 * math.pi * x[i])
     return value
 
+def path_length(distance):
+    def f(distance,path):
+        pathLength = 0
+        for i in range(len(distance)):
+            pathLength = pathLength + distance[path[i],path[i + 1]]
+        return pathLength
+    return lambda x: f(distance,x)
+
 if __name__ == "__main__":
     x = np.linspace(-5.12,5.12,500)
     y = np.linspace(-5.12,5.12,500)
