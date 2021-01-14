@@ -5,11 +5,11 @@ class GA_settings(Settings):
     def __init__(self):
         super().__init__()
         self.maxIterNum = 1000
-        self.N = 40
+        self.numPopulation = 40
         self.probRep = 0.1
-        self.probCross = 0.25
-        self.probMutate = 0.0001
-        self.crossoverMode = 'single point'
+        self.probCross = 0.5
+        self.probMutate = 0.001
+        # self.crossoverMode = 'single point'
 
     def output(self):
         print('-'*36,'参数设置','-'*36)
