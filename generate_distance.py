@@ -18,8 +18,23 @@ def generate_distance_matrix(n,mode='random'):
         np.savetxt('distance.txt',distance)
     elif mode == 'load': # 从本地加载
         distance = np.loadtxt('distance.txt')
+    elif mode == 'real': # 中国 30 个城市的坐标
+        coordinate= np.array([[41, 94], [37, 84], [54, 67], [25, 62], [7, 64],
+            [2, 99], [68, 58], [71, 44], [54, 62], [83, 69],
+            [64, 60], [18, 54], [22, 60], [83, 46], [91, 38],
+            [25, 38], [24, 42], [58, 69], [71, 71], [74, 78],
+            [87, 76], [18, 40], [13, 40], [82, 7], [62, 32],
+            [58, 35], [45, 21], [41, 26], [44, 35], [4, 50]
+            ])
+        n = len(coordinate)
+        distance = np.zeros((n,n))
+        for i in range(n):
+            for j in range(i + 1,n):
+                distance[i,j] = np.linalg.norm(np.array(coordinate[i]) - np.array(coordinate[j]))
+        distance = distance + distance.T
     return distance
 if __name__=='__main__':
     n = 10
-    distance = generate_distance_matrix(n)
-    path = np.random.permutation(n)
+    distance = generate_distance_matrix(n,mode='real')
+    print(np.round(distance[:10,:10],1))
+    # path = np.random.permutation(n)

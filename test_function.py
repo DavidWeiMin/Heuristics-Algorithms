@@ -12,8 +12,8 @@ def rastrigin(x):
 
 def path_length(distance):
     def f(distance,path):
-        pathLength = 0
-        for i in range(len(distance)):
+        pathLength = distance[path[len(path) - 1],path[0]]
+        for i in range(len(distance) - 1):
             pathLength = pathLength + distance[path[i],path[i + 1]]
         return pathLength
     return lambda x: f(distance,x)
