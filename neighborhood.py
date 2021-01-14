@@ -25,6 +25,3 @@ if __name__ == '__main__':
     neighbors = get_neighbor(i)
     for j in range(len(neighbors)):
         print(neighbors[j])
-
-
-

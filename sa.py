@@ -4,6 +4,7 @@ import random
 import math
 import test_function
 from path_show import *
+
 def main():
     # generate TSP distance matrix
     n = 40 # 城市个数
