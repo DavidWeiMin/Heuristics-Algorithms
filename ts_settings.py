@@ -1,4 +1,5 @@
 from settings import Settings
+import numpy as np
 class TS_settings(Settings):
 
     def __init__(self):
@@ -11,6 +12,8 @@ class TS_settings(Settings):
             if i != 'names':
                 if isinstance(self.__dict__[i],(str,int,float,list,tuple)):
                     print(i,':\t',self.__dict__[i])
+                elif isinstance(self.__dict__[i],np.ndarray):
+                    print(i,':\n',self.__dict__[i])
                 else:
                     self.__dict__[i].output()
         print('-'*82)
