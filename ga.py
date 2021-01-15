@@ -33,7 +33,7 @@ class GA():
             if self.stoppingRule():
                 globalBestIndividual = self.bestIndividual[self.fitnessBest.index(max(self.fitnessBest))]
                 print(globalBestIndividual.solution)
-                print(max(self.fitnessBest))
+                print(self.settings.cMax * 2 - max(self.fitnessBest))
                 break
 
     def select_operator(self):

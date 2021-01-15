@@ -1,12 +1,12 @@
 import copy
 import random
 def get_neighbor(i):
-    neighbor = copy.copy(i)
-    index = random.randint(0,len(i) - 1)
-    if index != len(i) - 1:
-        neighbor[index],neighbor[index + 1] = neighbor[index + 1],neighbor[index]
-    else:
-        neighbor[index],neighbor[0] = neighbor[0],neighbor[index]
+    neighbor = copy.deepcopy(i)
+    index = random.randint(1,len(i) - 2)
+    # if index != len(i) - 1:
+    neighbor[index],neighbor[index + 1] = neighbor[index + 1],neighbor[index]
+    # else:
+    #     neighbor[index],neighbor[0] = neighbor[0],neighbor[index]
     # for k in range(len(i) - 1):
     #     swap = copy.copy(i)
     #     if k < len(i) - 2:
@@ -21,7 +21,6 @@ def get_neighbor(i):
     return neighbor
 
 if __name__ == '__main__':
-    i = [0,1,2,3,0]
-    neighbors = get_neighbor(i)
-    for j in range(len(neighbors)):
-        print(neighbors[j])
+    i = list(range(12))
+    neighbor = get_neighbor(i)
+    print(neighbor)

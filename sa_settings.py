@@ -4,8 +4,9 @@ class SA_settings(Settings):
 
     def __init__(self):
         super().__init__()
-        self.chainLength = 10000
-        self.maxIteration = 1000 # 最大迭代次数
+        self.maxIteration = 200 # 最大迭代次数
+        self.temperature = [100 * 0.98 ** i for i in range(self.maxIteration)] # 温度序列
+        self.chainLength = [min(self.numCity ** 2,5 * i) for i in range(self.maxIteration)] * self.maxIteration # 链长度序列
 
     def output(self):
         print('-'*36,'参数设置','-'*36)

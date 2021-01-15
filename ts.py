@@ -18,4 +18,3 @@ def main():
     while stopping_rule_test():
         solution_candidate = solution_move()
         for solution in solution_candidate:
-            
