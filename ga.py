@@ -19,8 +19,8 @@ class GA():
         self.population = np.array([Individual(self.settings) for i in range(self.settings.numPopulation)])
         self.statistics()
         while 1:
-            # self.populationNext = [] # 无精英保留
-            self.populationNext = deepcopy(self.elite[-1]) # 保留最佳个体
+            self.populationNext = [] # 无精英保留
+            # self.populationNext = deepcopy(self.elite[-1]) # 保留最佳个体
             while len(self.populationNext) < self.settings.numPopulation:
                 if self.select_operator() == 'replicate':
                     self.replicate()

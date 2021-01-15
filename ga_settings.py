@@ -4,12 +4,12 @@ class GA_settings(Settings):
 
     def __init__(self):
         super().__init__()
-        self.numPopulation = 20
-        self.probRep = 0.2
-        self.probCross = 0.7
-        self.probMutate = 0.05
+        self.numPopulation = 40
+        self.probRep = 0.19
+        self.probCross = 0.8
+        self.probMutate = 0.01
         self.genMax = 500
-        self.gen_1 = 1 # 历史种群的最佳适应度不发生变化的代数，用于终止进化
+        self.gen_1 = 2 # 历史种群的最佳适应度不发生变化的代数，用于终止进化
         self.gen_2 = 8 # 种群平均适应度不发生变化的代数，用于终止进化
         self.crossoverMode = 1
         self.cMax = self.distanceMatrix[0,self.numCity - 1]

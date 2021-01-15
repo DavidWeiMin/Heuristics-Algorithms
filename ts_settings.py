@@ -1,10 +1,11 @@
 from settings import Settings
 import numpy as np
+import math
 class TS_settings(Settings):
 
     def __init__(self):
         super().__init__()
-        self.tabuListLength = 10
+        self.tabuListLength = int(math.sqrt(self.numCity)) *2
         self.maxIteration = 50
 
     def output(self):

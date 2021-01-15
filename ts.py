@@ -7,9 +7,9 @@ class TS():
     def __init__(self,ts_settings):
         self.settings = ts_settings
         self.x = list(range(self.settings.numCity)) # 初始解
-        self.obj_best = [float('inf')] # 记录最优目标函数值
+        self.obj_best = [self.settings.objective(self.x)] # 记录最优目标函数值
         self.x_best = [self.x] # 记录最优解
-        self.obj = [float('inf')] # 记录每条链最后一个解
+        self.obj = [self.settings.objective(self.x)] # 记录每条链最后一个解
         self.tabuList = pd.DataFrame(columns=['swap','duration'])
 
     def tabu_rule_test(self):
@@ -23,7 +23,7 @@ class TS():
             if self.settings.objective(x_new) < self.obj_best[-1]:
                 neighbors.loc[len(neighbors),:] = [str(i) + ',' + str(i + 1),x_new,self.settings.objective(x_new)]
             else:
-                if (str(i) + ',' + str(i + 1) or str(i + 1) + ',' + str(i)) not in self.tabuList['swap']:
+                if (str(i) + ',' + str(i + 1) or str(i + 1) + ',' + str(i)) not in self.tabuList['swap'].values:
                     neighbors.loc[len(neighbors),:] = [str(i) + ',' + str(i + 1),x_new,self.settings.objective(x_new)]
         neighbors['obj'] = neighbors['obj'].astype('float64')
         return neighbors
