@@ -4,7 +4,8 @@ class TS_settings(Settings):
 
     def __init__(self):
         super().__init__()
-        self.tabuListLength = 5
+        self.tabuListLength = 10
+        self.maxIteration = 50
 
     def output(self):
         print('-'*36,'参数设置','-'*36)

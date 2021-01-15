@@ -4,7 +4,7 @@ import test_function
 class Settings():
 
     def __init__(self):
-        self.numCity = 20 # 城市个数
+        self.numCity = 5 # 城市个数
         self.funTol = 1e-12 # 目标函数的误差容忍度
         self.mode = 'load' # 生成距离矩阵的方式
         self.generate_distance_matrix()

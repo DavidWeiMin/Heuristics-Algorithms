@@ -1,9 +1,9 @@
-from neighborhood import *
 import random
 import math
 from path_show import *
 from sa_settings import SA_settings
 import matplotlib.pyplot as plt
+import copy
 class SA():
 
     def __init__(self,sa_settings):
@@ -17,7 +17,7 @@ class SA():
         iterNum = 0 # 迭代次数
         while 1:
             for i in range(self.settings.chainLength[iterNum]):
-                y = get_neighbor(self.x) # 在解 i 的邻域内随机产生新解
+                y = self.get_neighbor(self.x) # 在解 i 的邻域内随机产生新解
                 if self.settings.objective(y) < self.settings.objective(self.x): # 新解更优，直接接受
                     self.x = y
                 elif math.exp((self.settings.objective(self.x) - self.settings.objective(y)) / self.settings.temperature[iterNum]) > random.uniform(0,1): # 旧解更优，以概率接受
@@ -30,6 +30,13 @@ class SA():
             if iterNum >= self.settings.maxIteration:
                 break
 
+    def get_neighbor(self,i):
+        neighbor = copy.deepcopy(i)
+        index = random.randint(1,len(i) - 2)
+        # if index != len(i) - 1:
+        neighbor[index],neighbor[index + 1] = neighbor[index + 1],neighbor[index]
+        return neighbor
+
     def output(self):
         print(self.x)
         print(self.obj_best[-1])
@@ -39,6 +46,7 @@ class SA():
         plt.xlabel('iteration')
         plt.ylabel('objective')
         plt.show()
+        plot(self.settings.distanceMatrix,self.x)
 
 
     def __repr__(self):

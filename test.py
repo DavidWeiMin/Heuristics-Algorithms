@@ -1,3 +1,5 @@
-import numpy as np
-a = [5,3,8,1,6,9]
-print(all(a))
+import pandas as pd
+s = pd.DataFrame(columns=['a','b'])
+w = pd.DataFrame({'a':[5,3,4],'b':[9,3,6]})
+print(w['b'].idxmin())
+print(w)

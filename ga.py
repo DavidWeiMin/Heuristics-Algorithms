@@ -4,6 +4,7 @@ import numpy as np
 from random import uniform,randint,shuffle
 from copy import deepcopy
 import matplotlib.pyplot as plt
+from path_show import *
 class GA():
 
     def __init__(self,ga_settings):
@@ -31,8 +32,8 @@ class GA():
             self.statistics()
             self.genNum += 1
             if self.stoppingRule():
-                globalBestIndividual = self.bestIndividual[self.fitnessBest.index(max(self.fitnessBest))]
-                print(globalBestIndividual.solution)
+                self.globalBestIndividual = self.bestIndividual[self.fitnessBest.index(max(self.fitnessBest))]
+                print(self.globalBestIndividual.solution)
                 print(self.settings.cMax * 2 - max(self.fitnessBest))
                 break
 
@@ -127,7 +128,7 @@ class GA():
         rule_3 = self.genNum >= self.settings.genMax
         return rule_1 and rule_2 or rule_3
     
-    def plot(self):
+    def output(self):
         # fig = plt.figure(dpi=300)
         plt.title('Evolution')
         plt.xlabel('generation')
@@ -136,6 +137,7 @@ class GA():
         plt.plot(self.fitnessBest,'ro-')
         plt.legend(['avarage fitness','best fitness'])
         plt.show()
+        plot(self.settings.distanceMatrix,self.globalBestIndividual.solution)
 
 
     def __repr__(self):
@@ -145,4 +147,4 @@ if __name__ == "__main__":
     ga_settings = GA_settings()
     ga = GA(ga_settings)
     ga.main()
-    ga.plot()
+    ga.output()
