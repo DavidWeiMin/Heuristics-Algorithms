@@ -2,7 +2,7 @@ from individual import Individual
 from ga_settings import GA_settings
 import numpy as np
 from random import uniform,randint,shuffle
-from copy import copy
+from copy import deepcopy
 import matplotlib.pyplot as plt
 class GA():
 
@@ -10,14 +10,16 @@ class GA():
         self.settings = ga_settings
         self.fitnessAvg = []
         self.fitnessBest = []
+        self.bestIndividual = []
+        self.genNum = 1
+        self.elite = []
 
     def main(self):
         self.population = np.array([Individual(self.settings) for i in range(self.settings.numPopulation)])
         self.statistics()
         while 1:
-            self.populationNext = []
-            for individual in self.population:
-                individual.evaluate()
+            # self.populationNext = [] # 无精英保留
+            self.populationNext = deepcopy(self.elite[-1]) # 保留最佳个体
             while len(self.populationNext) < self.settings.numPopulation:
                 if self.select_operator() == 'replicate':
                     self.replicate()
@@ -27,7 +29,11 @@ class GA():
                     self.mutate()
             self.population = np.array(self.populationNext)
             self.statistics()
-            if abs(self.fitnessBest[-1] - self.fitnessBest[-2]) + abs(self.fitnessAvg[-1] - self.fitnessAvg[-2]) < self.settings.funTol:
+            self.genNum += 1
+            if self.stoppingRule():
+                globalBestIndividual = self.bestIndividual[self.fitnessBest.index(max(self.fitnessBest))]
+                print(globalBestIndividual.solution)
+                print(max(self.fitnessBest))
                 break
 
     def select_operator(self):
@@ -56,43 +62,81 @@ class GA():
         for individual in self.population:
             proportion += individual.fitness / self.fitnessTotal
             if seed <= proportion:
-                return individual
+                return deepcopy(individual)
 
     def replicate(self):
         """复制算子
         """
         individual = self.select()
-        self.populationNext.append(individual)
+        self.populationNext.append(deepcopy(individual))
 
     def crossover(self):
         """交叉算子
         """
-        parent_1 = self.select() # 父辈 1
-        parent_2 = self.select() # 父辈 2
-        child_1 = copy(parent_1)
-        child_2 = copy(parent_2)
-        position = randint(1,self.settings.numCity - 1) # 随机选择交叉点位
-        position_another = np.argwhere(parent_1.solution == parent_2.solution[position])[0,0]
-        child_1.solution[position],child_1.solution[position_another] = child_1.solution[position_another],child_1.solution[position]
-        position_another = np.argwhere(parent_2.solution == parent_1.solution[position])[0,0]
-        child_2.solution[position],child_2.solution[position_another] = child_2.solution[position_another],child_2.solution[position]
-        self.populationNext.append(child_1)
-        self.populationNext.append(child_2)
+        if self.settings.crossoverMode == 1:
+            parent_1 = self.select() # 父辈 1
+            parent_2 = self.select() # 父辈 2
+            child_1 = deepcopy(parent_1)
+            child_2 = deepcopy(parent_2)
+            position = randint(1,self.settings.numCity - 1) # 随机选择交叉点位
+            position_another = np.argwhere(parent_1.solution == parent_2.solution[position])[0,0]
+            child_1.solution[position],child_1.solution[position_another] = child_1.solution[position_another],child_1.solution[position]
+            position_another = np.argwhere(parent_2.solution == parent_1.solution[position])[0,0]
+            child_2.solution[position],child_2.solution[position_another] = child_2.solution[position_another],child_2.solution[position]
+            # print(child_1.solution,child_2.solution)
+            self.populationNext.append(child_1)
+            if len(self.populationNext) < self.settings.numPopulation:
+                self.populationNext.append(child_2)
+        # elif self.settings.crossoverMode == 2:
+        #     parent = self.select()
+        #     child = deepcopy(parent)
+        #     position = randint(1,self.settings.numCity - 1) # 随机选择交叉点位
+        #     position_another = randint(1,self.settings.numCity - 1) # 随机选择交叉点位
+        #     child.solution[position],child.solution[position_another] = child.solution[position_another],child.solution[position]
+        #     self.populationNext.append(child)
 
     def mutate(self):
         """变异算子
         """
-        individual = self.population[randint(1,self.settings.numCity - 1)] # 随机选择一个个体
-        shuffle(individual.solution)
+        individual = self.population[randint(1,self.settings.numPopulation - 1)] # 随机选择一个个体
+        shuffle(individual.solution[1:])
+        # individual.solution[0],individual.solution[1] = individual.solution[1],individual.solution[0]
         self.populationNext.append(individual)
     
     def statistics(self):
+        for individual in self.population:
+            individual.evaluate()
         self.fitnessTotal = sum([individual.fitness for individual in self.population])
+        for individual in self.population:
+            individual.proportion = individual.fitness / self.fitnessTotal
         self.fitnessAvg.append(self.fitnessTotal / self.settings.numPopulation)
-        self.fitnessBest.append(max([individual.fitness for individual in self.population]))
+        self.bestIndividual.append(self.population[np.argmax(np.array([individual.fitness for individual in self.population]))])
+        self.fitnessBest.append(self.bestIndividual[-1].fitness)
+        self.elite.append(deepcopy(sorted(self.population,key=lambda individual: individual.fitness,reverse=True)[:self.settings.numElite]))
+    
+    def stoppingRule(self):
+        # 如果最佳个体的适应度连续 gen_1 代不发生变化，停止
+        rule_1 = False
+        if self.genNum > self.settings.gen_1:
+            rule_1 = all([self.fitnessBest[-1 - i] - self.fitnessBest[-2 - i] < self.settings.funTol for i in range(self.settings.gen_1)]) 
+        # 如果种群平均适应度连续 gen_2 代不发生变化，停止
+        rule_2 = False
+        if self.genNum > self.settings.gen_2:
+            rule_2 = sum([abs(self.fitnessAvg[-1 - i] - self.fitnessBest[-2 - i]) for i in range(self.settings.gen_2)]) < self.settings.funTol
+        # 如果超过最大进化代数，停止
+        rule_3 = self.genNum >= self.settings.genMax
+        return rule_1 and rule_2 or rule_3
     
     def plot(self):
-        pass
+        # fig = plt.figure(dpi=300)
+        plt.title('Evolution')
+        plt.xlabel('generation')
+        plt.ylabel('fitness')
+        plt.plot(self.fitnessAvg,'k-^')
+        plt.plot(self.fitnessBest,'ro-')
+        plt.legend(['avarage fitness','best fitness'])
+        plt.show()
+
 
     def __repr__(self):
         return f'{self.__class__.__name__}'
@@ -101,3 +145,4 @@ if __name__ == "__main__":
     ga_settings = GA_settings()
     ga = GA(ga_settings)
     ga.main()
+    ga.plot()

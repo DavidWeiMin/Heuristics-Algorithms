@@ -1,8 +1,6 @@
 from neighborhood import *
-from generate_distance import *
 import random
 import math
-import test_function
 from path_show import *
 
 class SA():
@@ -11,7 +9,6 @@ class SA():
         self.settings = sa_settings
 
     def main(self):
-        self.settings.distanceMatrix = generate_distance_matrix(n,mode='load')
         # minIteration = 100 # 最小迭代次数
         t = [100 * 0.95 ** i for i in range(1,self.settings.maxIteration + 1)] # temperature
         l = [100] * self.settings.maxIteration # length of Markov chain
