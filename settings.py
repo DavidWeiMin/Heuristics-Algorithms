@@ -48,6 +48,7 @@ class Settings():
         self.distanceMatrix = distanceMatrix
 
     def standardize(self,x):
+        # 通过固定第二个访问的城市序号小于最后一个访问的城市序号来保证路线的唯一性（克服了路线定义无法体现对称性的缺点）
         if x[1] > x[-1]:
             x[1:len(x)] = x[-1:0:-1]
         return x
