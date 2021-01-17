@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 def plot(distanceMatrix,path):
     path2edge = []
     n = len(path)
+    # 添加边
     for i in range(n):
         if i < n - 1:
             path2edge.append((path[i],path[i + 1]))

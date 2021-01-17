@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
-def rastrigin(x):
+def rastrigin(x): # 连续型测试函数
     A = 10
     value = A * len(x)
     for i in range(len(x)):
         value += x[i] ** 2 - A * math.cos(2 * math.pi * x[i])
     return value
 
-def path_length(distanceMatrix):
+def path_length(distanceMatrix):#根据距离矩阵生成路线的长度
     def f(distanceMatrix,path):
         pathLength = distanceMatrix[path[len(path) - 1],path[0]]
         for i in range(len(distanceMatrix) - 1):

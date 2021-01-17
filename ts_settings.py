@@ -5,8 +5,8 @@ class TS_settings(Settings):
 
     def __init__(self):
         super().__init__()
-        self.tabuListLength = int(math.sqrt(self.numCity)) *2
-        self.maxIteration = 50
+        self.tabuListLength = 8#int(math.sqrt(self.numCity)) *2 # 禁忌列表长度
+        self.maxIteration = 150 # 最大迭代次数
 
     def output(self):
         print('-'*36,'参数设置','-'*36)
@@ -17,7 +17,10 @@ class TS_settings(Settings):
                 elif isinstance(self.__dict__[i],np.ndarray):
                     print(i,':\n',self.__dict__[i])
                 else:
-                    self.__dict__[i].output()
+                    try:
+                        self.__dict__[i].output()
+                    except:
+                        pass
         print('-'*82)
 
     def __repr__(self):

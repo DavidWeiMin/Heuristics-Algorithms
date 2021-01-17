@@ -8,10 +8,11 @@ class SA():
 
     def __init__(self,sa_settings):
         self.settings = sa_settings
-        self.x = list(range(self.settings.numCity)) # 初始解
-        self.obj_best = [float('inf')] # 记录最优目标函数值
-        self.x_best = [self.x] # 记录最优解
-        self.obj = [float('inf')] # 记录每条链最后一个解
+        self.x = list(range(self.settings.numCity)) # 解的初始化
+        self.x = self.settings.standardize(self.x)
+        self.x_best = [self.x] # 记录历史搜索过的最优解
+        self.obj_best = [float('inf')] # 记录历史搜索过的最优目标函数值
+        self.obj = [float('inf')] # 记录每条马尔可夫链最后一个解的目标函数值
 
     def main(self):
         iterNum = 0 # 迭代次数
@@ -22,36 +23,33 @@ class SA():
                     self.x = y
                 elif math.exp((self.settings.objective(self.x) - self.settings.objective(y)) / self.settings.temperature[iterNum]) > random.uniform(0,1): # 旧解更优，以概率接受
                     self.x = y
-                if self.settings.objective(self.x) < self.obj_best[-1]: # 如果新解比历史最优更优
-                    self.obj_best.append(self.settings.objective(self.x)) # 记录访问过的最优目标函数
-                    self.x_best.append(self.x) # 记录访问过的最优解
+                self.x = self.settings.standardize(self.x)
+                if self.settings.objective(self.x) < self.obj_best[-1]: # 如果新解比历史最优更优，记录下来
+                    self.obj_best.append(self.settings.objective(self.x))
+                    self.x_best.append(self.x)
             self.obj.append(self.settings.objective(self.x))
             iterNum = iterNum + 1 # 迭代次数 +1
             if iterNum >= self.settings.maxIteration:
+                print('-'*40,'SA','-'*40)
+                print(self.x)
+                print(self.obj_best[-1])
                 break
 
     def get_neighbor(self,i):
         neighbor = copy.deepcopy(i)
         index = random.randint(1,len(i) - 2)
-        # if index != len(i) - 1:
-        neighbor[index],neighbor[index + 1] = neighbor[index + 1],neighbor[index]
+        neighbor[index],neighbor[index + 1] = neighbor[index + 1],neighbor[index] # 交换访问顺序相邻的两个城市的访问顺序
         return neighbor
 
     def output(self):
-        print(self.x)
-        print(self.obj_best[-1])
-        # fig1 = plt.figure()
         ax1 = plt.subplot(121)
-        # fig1.subplots()
         plt.title('SA')
         plt.plot(self.obj_best,'^-r')
-        # plt.plot(self.obj,'^-r')
         plt.xlabel('iteration')
         plt.ylabel('objective')
         ax2 = plt.subplot(122)
         plt.title('SA')
         plt.plot(self.obj,'^-r')
-        # plt.plot(self.obj,'^-r')
         plt.xlabel('iteration')
         plt.ylabel('objective')
         plt.show()

@@ -1,5 +1,4 @@
-import pandas as pd
-s = pd.DataFrame(columns=['a','b'])
-w = pd.DataFrame({'a':[5,3,4],'b':[9,3,6]})
-print(w['b'].idxmin())
-print(w)
+import numpy as np
+a = np.array([1,3,7,2])
+a[1:len(a)] = a[-1:0:-1]
+print(a)

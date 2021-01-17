@@ -9,30 +9,37 @@ class GA():
 
     def __init__(self,ga_settings):
         self.settings = ga_settings
-        self.fitnessAvg = []
-        self.fitnessBest = []
-        self.bestIndividual = []
-        self.genNum = 1
-        self.elite = []
+        self.fitnessAvg = [] # 种群每代的平均适应度
+        self.fitnessBest = [] # 种群每代最佳个体的适应度
+        self.bestIndividual = [] # 种群每代的最佳个体
+        self.genNum = 1 # 代计数变量
+        self.elite = [] # 每代保留的精英个体
 
     def main(self):
-        self.population = np.array([Individual(self.settings) for i in range(self.settings.numPopulation)])
+        self.population = np.array([Individual(self.settings) for i in range(self.settings.numPopulation)]) # 种群初始化
         self.statistics()
         while 1:
-            self.populationNext = [] # 无精英保留
-            # self.populationNext = deepcopy(self.elite[-1]) # 保留最佳个体
+            if self.settings.useElite == True:
+                self.populationNext = deepcopy(self.elite[-1]) # 有精英保留
+            else:
+                self.populationNext = [] # 无精英保留
             while len(self.populationNext) < self.settings.numPopulation:
-                if self.select_operator() == 'replicate':
+                operator = self.select_operator() # 按概率选择操作算子
+                # 执行选择的算子
+                if operator == 'replicate':
                     self.replicate()
-                elif self.select_operator() == 'crossover':
+                elif operator == 'crossover':
                     self.crossover()
-                elif self.select_operator() == 'mutate':
+                elif operator == 'mutate':
                     self.mutate()
             self.population = np.array(self.populationNext)
+            for individual in self.population:
+                individual.solution = self.settings.standardize(individual.solution)
             self.statistics()
             self.genNum += 1
             if self.stoppingRule():
                 self.globalBestIndividual = self.bestIndividual[self.fitnessBest.index(max(self.fitnessBest))]
+                print('-'*40,'GA','-'*40)
                 print(self.globalBestIndividual.solution)
                 print(self.settings.cMax * 2 - max(self.fitnessBest))
                 break
@@ -84,31 +91,22 @@ class GA():
             child_1.solution[position],child_1.solution[position_another] = child_1.solution[position_another],child_1.solution[position]
             position_another = np.argwhere(parent_2.solution == parent_1.solution[position])[0,0]
             child_2.solution[position],child_2.solution[position_another] = child_2.solution[position_another],child_2.solution[position]
-            # print(child_1.solution,child_2.solution)
             self.populationNext.append(child_1)
             if len(self.populationNext) < self.settings.numPopulation:
                 self.populationNext.append(child_2)
-        # elif self.settings.crossoverMode == 2:
-        #     parent = self.select()
-        #     child = deepcopy(parent)
-        #     position = randint(1,self.settings.numCity - 1) # 随机选择交叉点位
-        #     position_another = randint(1,self.settings.numCity - 1) # 随机选择交叉点位
-        #     child.solution[position],child.solution[position_another] = child.solution[position_another],child.solution[position]
-        #     self.populationNext.append(child)
 
     def mutate(self):
         """变异算子
         """
         individual = self.population[randint(1,self.settings.numPopulation - 1)] # 随机选择一个个体
         shuffle(individual.solution[1:])
-        # individual.solution[0],individual.solution[1] = individual.solution[1],individual.solution[0]
         self.populationNext.append(individual)
     
     def statistics(self):
-        for individual in self.population:
+        for individual in self.population: # 计算每个个体的适应度
             individual.evaluate()
         self.fitnessTotal = sum([individual.fitness for individual in self.population])
-        for individual in self.population:
+        for individual in self.population: # 计算每个个体的适应度占总适应度的比例
             individual.proportion = individual.fitness / self.fitnessTotal
         self.fitnessAvg.append(self.fitnessTotal / self.settings.numPopulation)
         self.bestIndividual.append(self.population[np.argmax(np.array([individual.fitness for individual in self.population]))])
@@ -129,7 +127,6 @@ class GA():
         return rule_1 and rule_2 or rule_3
     
     def output(self):
-        # fig = plt.figure(dpi=300)
         plt.title('Evolution')
         plt.xlabel('generation')
         plt.ylabel('fitness')
@@ -137,7 +134,7 @@ class GA():
         plt.plot(self.fitnessBest,'ro-')
         plt.legend(['avarage fitness','best fitness'])
         plt.show()
-        plot(self.settings.distanceMatrix,self.globalBestIndividual.solution)
+        plot(self.settings.distanceMatrix,self.globalBestIndividual.solution) # 画出解的路径图
 
 
     def __repr__(self):
