@@ -6,9 +6,10 @@ class SA_settings(Settings):
 
     def __init__(self):
         super().__init__()
-        self.maxIteration = 200 # 最大迭代次数
-        self.temperature = [100 * 0.98 ** i for i in range(self.maxIteration)] # 温度序列
-        self.chainLength = [min(self.numCity ** 2,5 * i) for i in range(self.maxIteration)] * self.maxIteration # 链长度序列
+        self.maxIteration = 120 # 最大迭代次数
+        self.temperature = [1200 / (1 + i) * 0.97 ** i for i in range(self.maxIteration)] # 温度序列
+        self.chainLength = [self.numCity ** 2 for i in range(self.maxIteration)] * self.maxIteration # 链长度序列
+        self.neighborMode = 2 # 邻域结构设计模式
 
     def output(self):
         print('-'*36,'参数设置','-'*36)

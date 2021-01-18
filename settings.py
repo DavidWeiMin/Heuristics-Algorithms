@@ -1,34 +1,35 @@
 import numpy as np
 import random
 import test_function # 导入目标函数
+import math
+import matplotlib.pyplot as plt
 class Settings():
     """设置类，用于表示基本设置
     """
 
     def __init__(self):
-        self.numCity = 20 # 城市个数
+        self.numCity = 30 # 城市个数
         self.funTol = 1e-12 # 目标函数的误差容忍度
-        self.mode = 'load' # 生成距离矩阵的方式
-        self.generate_distance_matrix()
+        self.mode = 'random' # 生成距离矩阵的方式
+        self.generate_data()
         self.objective = test_function.path_length(self.distanceMatrix) # 目标函数
 
-    def generate_distance_matrix(self):
+    def generate_data(self):
         if self.mode == 'random': # 随机产生距离矩阵
-            distance_lowerbound = 1 # 城市之间允许的最小距离
-            distance_upperbound = self.numCity ** 2 # 城市之间允许的最大距离
-            distanceMatrix = np.zeros((self.numCity,self.numCity),dtype='int') # 距离矩阵
+            coordinate_x = np.random.uniform(0,self.numCity,size=self.numCity) # 生成 self.numCity 个城市的 x 坐标
+            coordinate_y = np.random.uniform(0,self.numCity,size=self.numCity) # 生成 self.numCity 个城市的 y 坐标
+            distanceMatrix = np.zeros((self.numCity,self.numCity),dtype='float') # 距离矩阵
             # 随机生成城市 0 到 其他城市的距离，然后根据三角形法则确定其他城市之间距离的上下界，在上下界之间随机生成
             for i in range(1,self.numCity): # 第 2 列 ~ 最后一列，复杂度：O(self.numCity)
                 for j in range(i): # 第 i 列 第 j + 1 个元素，复杂度：O(self.numCity)
-                    if j > 0: # 不是生成城市 0 和 其他城市之间的距离，所以要先确定上下界
-                        distance_min = max([abs(distanceMatrix[k,i] - distanceMatrix[k,j]) for k in range(j)]) # 两边之差，复杂度：O(self.numCity)
-                        distance_max = min([distanceMatrix[k,i] + distanceMatrix[k,j] for k in range(j)]) # 两边之和，复杂度：O(self.numCity)
-                        distanceMatrix[j,i] = random.randint(max(distance_min,distance_lowerbound),min(distance_max,distance_upperbound))
-                    else: # 随机生成城市 0 和 其他城市之间的距离
-                        distanceMatrix[j,i] = random.randint(distance_lowerbound,distance_upperbound) # 
+                    distanceMatrix[j,i] = math.sqrt((coordinate_x[i] - coordinate_x[j]) ** 2 + (coordinate_y[i] - coordinate_y[j]) ** 2)
             distanceMatrix = distanceMatrix + distanceMatrix.T # 利用距离矩阵的对称性
+            np.savetxt('coordinate_x.txt',coordinate_x)
+            np.savetxt('coordinate_y.txt',coordinate_y)
             np.savetxt('distanceMatrix.txt',distanceMatrix)
         elif self.mode == 'load': # 从本地加载距离矩阵
+            coordinate_x = np.loadtxt('coordinate_x.txt')
+            coordinate_y = np.loadtxt('coordinate_y.txt')
             distanceMatrix = np.loadtxt('distanceMatrix.txt')
         elif self.mode == 'real': # 从中国 30 个城市的坐标计算距离矩阵
             coordinate= np.array([[41, 94], [37, 84], [54, 67], [25, 62], [7, 64],
@@ -39,12 +40,19 @@ class Settings():
                 [58, 35], [45, 21], [41, 26], [44, 35], [4, 50]
                 ])
             self.numCity = len(coordinate)
+            coordinate_x = np.zeros(self.numCity)
+            coordinate_y = np.zeros(self.numCity)
+            for i in range(self.numCity):
+                coordinate_x = coordinate[i][0]
+                coordinate_y = coordinate[i][1]
             distanceMatrix = np.zeros((self.numCity,self.numCity))
             # 计算距离
             for i in range(self.numCity):
                 for j in range(i + 1,self.numCity):
                     distanceMatrix[i,j] = np.linalg.norm(np.array(coordinate[i]) - np.array(coordinate[j]))
             distanceMatrix = distanceMatrix + distanceMatrix.T
+        self.coordinate_x = coordinate_x
+        self.coordinate_y = coordinate_y
         self.distanceMatrix = distanceMatrix
 
     def standardize(self,x):
@@ -52,6 +60,21 @@ class Settings():
         if x[1] > x[-1]:
             x[1:len(x)] = x[-1:0:-1]
         return x
+
+    def showSolution(self,solution):
+        plt.title('Problem')
+        plt.scatter(self.coordinate_x,self.coordinate_y,marker='o',c='r')
+        plt.xticks([]) # 关闭 x 轴刻度
+        plt.yticks([]) # 关闭 y 轴刻度
+        coordinate_x = np.zeros(self.numCity + 1)
+        coordinate_y = np.zeros(self.numCity + 1)
+        for i in range(self.numCity):
+            coordinate_x[i] = self.coordinate_x[solution[i]]
+            coordinate_y[i] = self.coordinate_y[solution[i]]
+        coordinate_x[-1] = self.coordinate_x[0]
+        coordinate_y[-1] = self.coordinate_y[0]
+        plt.plot(coordinate_x,coordinate_y)
+        plt.show()
 
     def output(self):
         print('-'*36,'参数设置','-'*36)

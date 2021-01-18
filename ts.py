@@ -56,12 +56,13 @@ class TS():
             if self.obj[-1] < self.obj_best[-1]:
                 self.obj_best.append(self.obj[-1])
             if iterNum >= self.settings.maxIteration:
-                print('-'*40,'TS','-'*40)
-                print(self.x)
-                print(self.obj_best[-1])
+                self.settings.showSolution(self.x)
                 break
 
     def output(self):
+        print('-'*40,'TS','-'*40)
+        print(self.x)
+        print(self.obj_best[-1])
         fig = plt.figure()
         plt.title('TS')
         plt.plot(self.obj,'^-r')

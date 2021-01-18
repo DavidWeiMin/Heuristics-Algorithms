@@ -4,7 +4,6 @@ import numpy as np
 from random import uniform,randint,shuffle
 from copy import deepcopy
 import matplotlib.pyplot as plt
-from path_show import *
 class GA():
 
     def __init__(self,ga_settings):
@@ -39,9 +38,7 @@ class GA():
             self.genNum += 1
             if self.stoppingRule():
                 self.globalBestIndividual = self.bestIndividual[self.fitnessBest.index(max(self.fitnessBest))]
-                print('-'*40,'GA','-'*40)
-                print(self.globalBestIndividual.solution)
-                print(self.settings.cMax * 2 - max(self.fitnessBest))
+                self.settings.showSolution(self.globalBestIndividual.solution)
                 break
 
     def select_operator(self):
@@ -127,6 +124,9 @@ class GA():
         return rule_1 and rule_2 or rule_3
     
     def output(self):
+        print('-'*40,'GA','-'*40)
+        print(self.globalBestIndividual.solution)
+        print(self.settings.cMax * 2 - max(self.fitnessBest))
         plt.title('Evolution')
         plt.xlabel('generation')
         plt.ylabel('fitness')
@@ -134,7 +134,6 @@ class GA():
         plt.plot(self.fitnessBest,'ro-')
         plt.legend(['avarage fitness','best fitness'])
         plt.show()
-        plot(self.settings.distanceMatrix,self.globalBestIndividual.solution) # 画出解的路径图
 
 
     def __repr__(self):

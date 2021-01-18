@@ -1,6 +1,5 @@
 import random
 import math
-from path_show import *
 from sa_settings import SA_settings
 import matplotlib.pyplot as plt
 import copy
@@ -30,18 +29,23 @@ class SA():
             self.obj.append(self.settings.objective(self.x))
             iterNum = iterNum + 1 # 迭代次数 +1
             if iterNum >= self.settings.maxIteration:
-                print('-'*40,'SA','-'*40)
-                print(self.x)
-                print(self.obj_best[-1])
+                self.settings.showSolution(self.x)
                 break
 
     def get_neighbor(self,i):
         neighbor = copy.deepcopy(i)
-        index = random.randint(1,len(i) - 2)
-        neighbor[index],neighbor[index + 1] = neighbor[index + 1],neighbor[index] # 交换访问顺序相邻的两个城市的访问顺序
+        if self.settings.neighborMode == 1:
+            index = random.randint(1,len(i) - 2)
+            neighbor[index],neighbor[index + 1] = neighbor[index + 1],neighbor[index] # 交换访问顺序相邻的两个城市的访问顺序
+        elif self.settings.neighborMode == 2:
+            index = random.sample(list(range(1,self.settings.numCity)),2) # 交换任意两个城市的访问顺序
+            neighbor[index[0]],neighbor[index[1]] = neighbor[index[1]],neighbor[index[0]]
         return neighbor
 
     def output(self):
+        print('-'*40,'SA','-'*40)
+        print(self.x)
+        print(self.obj_best[-1])
         ax1 = plt.subplot(121)
         plt.title('SA')
         plt.plot(self.obj_best,'^-r')
@@ -53,8 +57,6 @@ class SA():
         plt.xlabel('iteration')
         plt.ylabel('objective')
         plt.show()
-        plot(self.settings.distanceMatrix,self.x)
-
 
     def __repr__(self):
         return f'{self.__class__.__name__}'
