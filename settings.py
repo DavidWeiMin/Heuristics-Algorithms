@@ -10,7 +10,7 @@ class Settings():
     def __init__(self):
         self.numCity = 30 # 城市个数
         self.funTol = 1e-12 # 目标函数的误差容忍度
-        self.mode = 'random' # 生成距离矩阵的方式
+        self.mode = 'real' # 生成距离矩阵的方式
         self.generate_data()
         self.objective = test_function.path_length(self.distanceMatrix) # 目标函数
 
@@ -43,8 +43,8 @@ class Settings():
             coordinate_x = np.zeros(self.numCity)
             coordinate_y = np.zeros(self.numCity)
             for i in range(self.numCity):
-                coordinate_x = coordinate[i][0]
-                coordinate_y = coordinate[i][1]
+                coordinate_x[i] = coordinate[i,0]
+                coordinate_y[i] = coordinate[i,1]
             distanceMatrix = np.zeros((self.numCity,self.numCity))
             # 计算距离
             for i in range(self.numCity):
