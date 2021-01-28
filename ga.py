@@ -1,7 +1,7 @@
 from individual import Individual
 from ga_settings import GA_settings
 import numpy as np
-from random import uniform,randint,shuffle
+from random import uniform,randint,shuffle,sample
 from copy import deepcopy
 import matplotlib.pyplot as plt
 class GA():
@@ -78,25 +78,55 @@ class GA():
     def crossover(self):
         """交叉算子
         """
+        parent_1 = self.select() # 父辈 1
+        parent_2 = self.select() # 父辈 2
+        child_1 = deepcopy(parent_1)
+        child_2 = deepcopy(parent_2)
         if self.settings.crossoverMode == 1:
-            parent_1 = self.select() # 父辈 1
-            parent_2 = self.select() # 父辈 2
-            child_1 = deepcopy(parent_1)
-            child_2 = deepcopy(parent_2)
             position = randint(1,self.settings.numCity - 1) # 随机选择交叉点位
             position_another = np.argwhere(parent_1.solution == parent_2.solution[position])[0,0]
             child_1.solution[position],child_1.solution[position_another] = child_1.solution[position_another],child_1.solution[position]
             position_another = np.argwhere(parent_2.solution == parent_1.solution[position])[0,0]
             child_2.solution[position],child_2.solution[position_another] = child_2.solution[position_another],child_2.solution[position]
-            self.populationNext.append(child_1)
-            if len(self.populationNext) < self.settings.numPopulation:
-                self.populationNext.append(child_2)
+        elif self.settings.crossoverMode == 2:
+            position = randint(1,self.settings.numCity - 1) # 随机选择交叉点位
+            # 交换 position 之后的访问顺序
+            child_1.solution = parent_1.solution[:position]
+            child_1.solution = np.append(child_1.solution,parent_2.solution[position:])
+            child_2.solution = parent_2.solution[:position]
+            child_2.solution = np.append(child_2.solution,parent_1.solution[position:])
+            # 处理重复
+            indexDuplicate_1 = []
+            indexDuplicate_2 = []
+            for i in range(position,self.settings.numCity):
+                for j in range(position):
+                    if child_1.solution[i] == child_1.solution[j]:
+                        indexDuplicate_1.append(j)
+                    if child_2.solution[i] == child_2.solution[j]:
+                        indexDuplicate_2.append(j)
+            for k in range(len(indexDuplicate_1)):
+                child_1.solution[indexDuplicate_1[k]],child_2.solution[indexDuplicate_2[k]] = child_2.solution[indexDuplicate_2[k]],child_1.solution[indexDuplicate_1[k]]
+        self.populationNext.append(child_1)
+        if len(self.populationNext) < self.settings.numPopulation:
+            self.populationNext.append(child_2)
 
     def mutate(self):
         """变异算子
         """
         individual = self.population[randint(1,self.settings.numPopulation - 1)] # 随机选择一个个体
-        shuffle(individual.solution[1:])
+        if self.settings.mutateMode == 1: # 随机打乱城市访问顺序
+            shuffle(individual.solution[1:])
+        elif self.settings.mutateMode == 2: # 随机交换两个城市的访问顺序
+            position = sample(list(range(1,self.settings.numCity)),2)
+            individual.solution[position[0]],individual.solution[position[1]] = individual.solution[position[1]],individual.solution[position[0]]
+        elif self.settings.mutateMode == 3: # 随机交换两个城市之间的城市访问顺序
+            position = sample(list(range(1,self.settings.numCity)),2)
+            indexMin = min(position)
+            indexMax = max(position)
+            newSolution = individual.solution[:indexMin]
+            newSolution = np.append(newSolution,individual.solution[(indexMax):(indexMin - 1):-1])
+            newSolution = np.append(newSolution,individual.solution[(indexMax + 1):])
+            individual.solution = newSolution
         self.populationNext.append(individual)
     
     def statistics(self):
@@ -130,8 +160,8 @@ class GA():
         plt.title('Evolution')
         plt.xlabel('generation')
         plt.ylabel('fitness')
-        plt.plot(self.fitnessAvg,'k-^')
-        plt.plot(self.fitnessBest,'ro-')
+        plt.plot(self.fitnessAvg[::10],'k-^')
+        plt.plot(self.fitnessBest[::10],'ro-')
         plt.legend(['avarage fitness','best fitness'])
         plt.show()
 

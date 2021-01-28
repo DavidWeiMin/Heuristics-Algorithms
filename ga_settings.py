@@ -4,16 +4,17 @@ class GA_settings(Settings):
 
     def __init__(self):
         super().__init__()
-        self.numPopulation = 30 # 种群大小
-        self.probRep = 0.15 # 复制概率
-        self.probCross = 0.84 # 交叉概率
-        self.probMutate = 0.01 # 变异概率
+        self.numPopulation = 100 # 种群大小
+        self.probRep = 0.2 # 复制概率
+        self.probCross = 0.7 # 交叉概率
+        self.probMutate = 0.1 # 变异概率
         self.genMax = 500 # 最大进化次数
         self.gen_1 = 3 # 历史种群的最佳适应度不发生变化的代数，用于终止进化
-        self.gen_2 = 6 # 种群平均适应度不发生变化的代数，用于终止进化
-        self.crossoverMode = 1 # 交叉算子的交叉模式
+        self.gen_2 = 2 # 种群平均适应度不发生变化的代数，用于终止进化
+        self.crossoverMode = 2 # 交叉算子的交叉模式
+        self.mutateMode = 3 # 变异算子的变异模式
         self.useElite = True # 是否使用精英保留策略
-        self.numElite = 1 # 每代精英保留的数量
+        self.numElite = 20 # 每代精英保留的数量
         self.cMax = self.distanceMatrix[0,self.numCity - 1] # 从目标函数到适应度的变换所用到的常数
         for i in range(self.numCity - 1):
             self.cMax += self.distanceMatrix[i,i + 1]
