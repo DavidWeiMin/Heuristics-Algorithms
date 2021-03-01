@@ -16,6 +16,7 @@ class TS():
         self.tabuList = [] # 禁忌列表
     
     def exchange(self,x_i,x_j):
+        # 交换路线 x 中 x_i, x_j 的位置
         y = copy.deepcopy(self.x)
         i,j = y.index(x_i),y.index(x_j)
         y[i],y[j] = y[j],y[i]
@@ -29,24 +30,24 @@ class TS():
             bestCandidateObjective = float('inf')
             bestCandidate = None
             for x_draw in combinations(self.x[1:],2):
-                candidate = self.exchange(x_draw[0],x_draw[1])
+                candidate = self.exchange(x_draw[0],x_draw[1]) # 交换后的路线
                 if self.settings.objective(candidate) < min(self.obj_best[-1],bestCandidateObjective): # 如果比历史最优还要好，特赦
                     bestCandidate = candidate
                     bestCandidateObjective = self.settings.objective(candidate)
                     tabu = x_draw
                 else:
-                    if x_draw not in self.tabuList and self.settings.objective(candidate) < bestCandidateObjective:
+                    if x_draw not in self.tabuList and self.settings.objective(candidate) < bestCandidateObjective:# 选取不在禁忌列表中最好的邻域解
                         bestCandidate = candidate
                         bestCandidateObjective = self.settings.objective(candidate)
                         tabu = x_draw
-            if bestCandidate is not None: 
+            if bestCandidate is not None:
                 self.x = bestCandidate
                 self.obj.append(bestCandidateObjective)
-            else:
+            else: # 如果所有的邻域都被禁忌
                 self.x = self.exchange(self.tabuList[0][0],self.tabuList[0][1])
                 self.obj.append(self.settings.objective(self.x))
             self.tabuList.append(tabu)
-            if bestCandidateObjective < self.obj_best[-1]:
+            if bestCandidateObjective < self.obj_best[-1]: # 如果本次转移产生了历史最优解
                 self.x_best.append(bestCandidate)
                 self.obj_best.append(bestCandidateObjective)
             if len(self.tabuList) > self.settings.tabuListLength:
