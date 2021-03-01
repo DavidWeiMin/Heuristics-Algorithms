@@ -5,7 +5,7 @@ class TS_settings(Settings):
 
     def __init__(self):
         super().__init__()
-        self.tabuListLength = 8#int(math.sqrt(self.numCity)) *2 # 禁忌列表长度
+        self.tabuListLength = 8 #int(math.sqrt(self.numCity)) *2 # 禁忌列表长度
         self.maxIteration = 150 # 最大迭代次数
 
     def output(self):
